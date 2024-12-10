@@ -1,6 +1,6 @@
-from pymodbus.server.async import ModbusTcpServer
+import asyncio
+from pymodbus.server.asyncio import ModbusTcpServer  # Updated import for asyncio
 from pymodbus.datastore import ModbusSlaveContext, ModbusContext
-from pymodbus.transaction import ModbusTcpProtocol
 import logging
 
 # Set up logging for better output
@@ -15,5 +15,6 @@ context = ModbusContext(slaves=store, single=True)
 # Create the Modbus server
 server = ModbusTcpServer(context, address=("0.0.0.0", 5020))
 
-# Start the server
-server.serve_forever()
+# Start the server using asyncio
+loop = asyncio.get_event_loop()
+loop.run_until_complete(server.serve_forever())
