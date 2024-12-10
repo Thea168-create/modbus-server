@@ -1,5 +1,4 @@
-import asyncio
-from pymodbus.server.asyncio import ModbusTcpServer  # Updated import for asyncio
+from pymodbus.server.sync import ModbusTcpServer  # Updated import for asyncio
 from pymodbus.datastore import ModbusSlaveContext, ModbusContext
 import logging
 
