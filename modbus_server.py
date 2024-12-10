@@ -1,19 +1,19 @@
-from pymodbus.server.sync import StartTcpServer
-from pymodbus.datastore import ModbusSequentialDataStore
+from pymodbus.server.async import ModbusTcpServer
 from pymodbus.datastore import ModbusSlaveContext, ModbusContext
-from pymodbus.device import ModbusDeviceIdentification
+from pymodbus.transaction import ModbusTcpProtocol
+import logging
 
-# Create datastore and slave context
-store = ModbusSequentialDataStore()
-slave_context = ModbusSlaveContext(hr=store)
-context = ModbusContext(slave_context)
+# Set up logging for better output
+logging.basicConfig()
+log = logging.getLogger()
+log.setLevel(logging.DEBUG)
 
-# Set up server identity
-identity = ModbusDeviceIdentification()
-identity.VendorName = 'MyVendor'
-identity.ProductCode = 'ModbusServer'
-identity.ProductName = 'Modbus TCP Server'
-identity.ModelName = 'Model1'
+# Create a Modbus datastore
+store = ModbusSlaveContext()
+context = ModbusContext(slaves=store, single=True)
 
-# Start the Modbus server
-StartTcpServer(context, identity=identity, address=("0.0.0.0", 1234))
+# Create the Modbus server
+server = ModbusTcpServer(context, address=("0.0.0.0", 5020))
+
+# Start the server
+server.serve_forever()
