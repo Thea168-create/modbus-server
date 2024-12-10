@@ -1,17 +1,27 @@
-from pymodbus.server.sync import ModbusTcpServer  # For pymodbus 2.x
-from pymodbus.datastore import ModbusSlaveContext  # Only use ModbusSlaveContext
-import logging
+from pymodbus.server.sync import StartTcpServer
+from pymodbus.device import ModbusDeviceIdentification
+from pymodbus.datastore import ModbusSequentialDataBlock
+from pymodbus.datastore import ModbusSlaveContext, ModbusServerContext
 
-# Set up logging for better output
-logging.basicConfig()
-log = logging.getLogger()
-log.setLevel(logging.DEBUG)
+# Define data store
+store = ModbusSlaveContext(
+    di=ModbusSequentialDataBlock(0, [0]*100),  # Discrete Inputs
+    co=ModbusSequentialDataBlock(0, [0]*100),  # Coils
+    hr=ModbusSequentialDataBlock(0, [0]*100),  # Holding Registers
+    ir=ModbusSequentialDataBlock(0, [0]*100)   # Input Registers
+)
+context = ModbusServerContext(slaves=store, single=True)
 
-# Create a Modbus datastore
-store = ModbusSlaveContext()  # Only ModbusSlaveContext needed
+# Server identity
+identity = ModbusDeviceIdentification()
+identity.VendorName = 'MyCompany'
+identity.ProductCode = 'MyModbusServer'
+identity.VendorUrl = 'http://mycompany.com'
+identity.ProductName = 'Modbus Server'
+identity.ModelName = 'ModbusTCPServer'
+identity.MajorMinorRevision = '1.0'
 
-# Create the Modbus server
-server = ModbusTcpServer(store, address=("0.0.0.0", 5020))  # Directly pass the store
-
-# Start the server
-server.serve_forever()
+# Run the server on port 502
+if __name__ == "__main__":
+    print("Starting Modbus TCP Server...")
+    StartTcpServer(context, identity=identity, address=("0.0.0.0", 502))
