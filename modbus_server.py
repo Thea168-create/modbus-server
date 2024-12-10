@@ -1,5 +1,5 @@
-from pymodbus.server.sync import ModbusTcpServer  # Updated import for asyncio
-from pymodbus.datastore import ModbusSlaveContext, ModbusContext
+from pymodbus.server.sync import ModbusTcpServer  # For pymodbus 2.x
+from pymodbus.datastore import ModbusSlaveContext, ModbusContext  # ModbusContext is available in 2.x
 import logging
 
 # Set up logging for better output
@@ -9,11 +9,10 @@ log.setLevel(logging.DEBUG)
 
 # Create a Modbus datastore
 store = ModbusSlaveContext()
-context = ModbusContext(slaves=store, single=True)
+context = ModbusContext(slaves=store, single=True)  # Using ModbusContext for pymodbus 2.x
 
 # Create the Modbus server
 server = ModbusTcpServer(context, address=("0.0.0.0", 5020))
 
-# Start the server using asyncio
-loop = asyncio.get_event_loop()
-loop.run_until_complete(server.serve_forever())
+# Start the server
+server.serve_forever()
