@@ -22,7 +22,7 @@ store = ModbusSlaveContext(
 context = ModbusServerContext(slaves=store, single=True)
 
 # Function to log incoming connections
-def log_connections(host='0.0.0.0', port=1234):
+def log_connections(host='0.0.0.0', port=502):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind((host, port))
         s.listen()
@@ -37,5 +37,5 @@ if __name__ == "__main__":
     # Run the connection logging in a separate thread
     Thread(target=log_connections, daemon=True).start()
 
-    print("Starting Modbus TCP Server on port 1234...")
-    StartTcpServer(context, address=("0.0.0.0", 1234))
+    print("Starting Modbus TCP Server on port 502...")
+    StartTcpServer(context, address=("0.0.0.0", 502))
