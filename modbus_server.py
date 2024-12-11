@@ -37,5 +37,5 @@ if __name__ == "__main__":
     # Run the connection logging in a separate thread
     Thread(target=log_connections, daemon=True).start()
 
-    print("Starting Modbus TCP Server on port 502...")
-    StartTcpServer(context, address=("0.0.0.0", 502))
+    print("Starting Modbus TCP Server on port 1234...")
+    StartTcpServer(context, address=("0.0.0.0", 1234))
