@@ -64,10 +64,10 @@ def handle_request(request, client_socket):
 # Start the Modbus TCP server (Master)
 def start_modbus_server():
     """
-    Starts the Modbus server, listening for client connections on port 5020.
+    Starts the Modbus server, listening for client connections on port 502.
     """
-    print("Starting Modbus TCP Server on port 5020...")
-    server = ModbusTcpServer(context, address=("0.0.0.0", 5020))  # Server listens on port 5020
+    print("Starting Modbus TCP Server on port 502...")
+    server = ModbusTcpServer(context, address=("0.0.0.0", 502))  # Server listens on port 502
     server.serve_forever()
 
 # Start the server
