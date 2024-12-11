@@ -1,7 +1,8 @@
-import socket
-import logging
-from pymodbus.server.sync import StartTcpServer, ModbusTcpServer, ModbusRequestHandler
+from pymodbus.server.sync import StartTcpServer
 from pymodbus.datastore import ModbusSequentialDataBlock, ModbusSlaveContext, ModbusServerContext
+import logging
+import socket
+from threading import Thread
 
 # Enable logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -19,34 +20,35 @@ store = ModbusSlaveContext(
 )
 context = ModbusServerContext(slaves=store, single=True)
 
-# Custom request handler to validate the login message
-class CustomRequestHandler(ModbusRequestHandler):
-    def handle(self):
-        try:
-            # Receive data and validate the login message if present
-            data = self.request.recv(1024).decode().strip()
+# Function to log client connections
+def log_connections():
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        s.bind(("0.0.0.0", SERVER_PORT))
+        s.listen()
+        logging.info(f"Server listening for connections on port {SERVER_PORT}...")
+        while True:
+            conn, addr = s.accept()
+            logging.info(f"New connection from {addr}")
+            data = conn.recv(1024).decode().strip()
             if data.startswith(EXPECTED_LOGIN_MESSAGE):
-                logging.info(f"Valid login message received from {self.client_address}")
-                # Remove the login message before processing Modbus request
-                modbus_data = data[len(EXPECTED_LOGIN_MESSAGE):]
-                self.request.sendall(modbus_data.encode())
+                logging.info(f"Valid login message received from {addr}")
             else:
-                logging.warning(f"Invalid login message from {self.client_address}: {data}")
-                self.request.sendall(b"Invalid login message\n")
-        except Exception as e:
-            logging.error(f"Error handling request: {e}")
-        finally:
-            self.request.close()
+                logging.warning(f"Invalid login message from {addr}: {data}")
+            conn.close()
 
-# Start the Modbus TCP server with the custom handler
+# Start the Modbus TCP server
 def start_modbus_server():
-    logging.info(f"Starting Modbus TCP Server on port {SERVER_PORT}...")
-    server = ModbusTcpServer(context, address=("0.0.0.0", SERVER_PORT), handler=CustomRequestHandler)
+    logging.info("Starting Modbus TCP Server...")
+    StartTcpServer(context, address=("0.0.0.0", SERVER_PORT))
+
+# Run the logging thread and Modbus server
+if __name__ == "__main__":
+    # Start the logging thread
+    Thread(target=log_connections, daemon=True).start()
+    
+    # Start the Modbus server
     try:
-        server.serve_forever()
+        start_modbus_server()
     except KeyboardInterrupt:
         logging.info("Server shutting down...")
-
-# Main function
-if __name__ == "__main__":
-    start_modbus_server()
