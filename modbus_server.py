@@ -84,18 +84,10 @@ def start_modbus_server():
     Starts the Modbus server, listening for client connections on port 1234.
     """
     log.debug("Starting Modbus TCP Server on port 1234...")
-    server = ModbusTcpServer(context, address=("0.0.0.0", 1234))  # Server listens on port 1234
+    server = ModbusTcpServer(context, address=("0.0.0.0", 1234))  # Server listens on port 5020
     
-    # Start listening for client connections
-    while True:
-        client_socket, client_address = server.server.accept()  # Accept incoming connection
-        log.debug(f"Client Connected: {client_address}")
-
-        if not handle_login(client_socket):  # Handle login first
-            continue  # Skip further processing if login fails
-        
-        # Now that the client has logged in, proceed to handle Modbus requests
-        server.handle_request(client_socket)
+    # Start the Modbus server and handle incoming requests
+    server.serve_forever()
 
 # Start the server
 if __name__ == "__main__":
