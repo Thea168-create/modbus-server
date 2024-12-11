@@ -1,54 +1,28 @@
-from pymodbus.server.sync import StartTcpServer
-from pymodbus.datastore import ModbusSequentialDataBlock, ModbusSlaveContext, ModbusServerContext
-import logging
 import socket
-from threading import Thread
+import datetime
 
-# Enable logging
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+# Server configuration
+SERVER_IP = "0.0.0.0"
+SERVER_PORT = 12345
+LOG_FILE = "rtu_data_log.txt"
 
-# Define the expected login message
-EXPECTED_LOGIN_MESSAGE = "Q2685SY008TX9765"
-SERVER_PORT = 502
+# Create UDP socket
+udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+udp_socket.bind((SERVER_IP, SERVER_PORT))
 
-# Initialize the Modbus datastore
-store = ModbusSlaveContext(
-    di=ModbusSequentialDataBlock(0, [0]*100),
-    co=ModbusSequentialDataBlock(0, [0]*100),
-    hr=ModbusSequentialDataBlock(0, [0]*100),
-    ir=ModbusSequentialDataBlock(0, [0]*100)
-)
-context = ModbusServerContext(slaves=store, single=True)
+print(f"Server listening on {SERVER_IP}:{SERVER_PORT}...")
 
-# Function to log client connections
-def log_connections():
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        s.bind(("0.0.0.0", SERVER_PORT))
-        s.listen()
-        logging.info(f"Server listening for connections on port {SERVER_PORT}...")
+try:
+    with open(LOG_FILE, "a") as log_file:
         while True:
-            conn, addr = s.accept()
-            logging.info(f"New connection from {addr}")
-            data = conn.recv(1024).decode().strip()
-            if data.startswith(EXPECTED_LOGIN_MESSAGE):
-                logging.info(f"Valid login message received from {addr}")
-            else:
-                logging.warning(f"Invalid login message from {addr}: {data}")
-            conn.close()
-
-# Start the Modbus TCP server
-def start_modbus_server():
-    logging.info("Starting Modbus TCP Server...")
-    StartTcpServer(context, address=("0.0.0.0", SERVER_PORT))
-
-# Run the logging thread and Modbus server
-if __name__ == "__main__":
-    # Start the logging thread
-    Thread(target=log_connections, daemon=True).start()
-    
-    # Start the Modbus server
-    try:
-        start_modbus_server()
-    except KeyboardInterrupt:
-        logging.info("Server shutting down...")
+            data, addr = udp_socket.recvfrom(1024)
+            timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            log_entry = f"[{timestamp}] Data from {addr}: {data}\n"
+            print(log_entry.strip())
+            log_file.write(log_entry)
+            log_file.flush()
+except KeyboardInterrupt:
+    print("\nServer stopped by user.")
+finally:
+    udp_socket.close()
+    print("Socket closed.")
