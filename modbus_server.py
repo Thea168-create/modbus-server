@@ -22,7 +22,7 @@ store = ModbusSlaveContext(
 context = ModbusServerContext(slaves=store, single=True)
 
 # Function to log incoming connections
-def log_connections(host='0.0.0.0', port=502):
+def log_connections(host='0.0.0.0', port=1234):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind((host, port))
         s.listen()
