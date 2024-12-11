@@ -81,10 +81,10 @@ def send_heartbeat_ack(client_socket):
 # Start the Modbus TCP server (Master)
 def start_modbus_server():
     """
-    Starts the Modbus server, listening for client connections on port 1234.
+    Starts the Modbus server, listening for client connections on port 5020.
     """
-    log.debug("Starting Modbus TCP Server on port 1234...")
-    server = ModbusTcpServer(context, address=("0.0.0.0", 1234))  # Server listens on port 5020
+    log.debug("Starting Modbus TCP Server on port 5020...")
+    server = ModbusTcpServer(context, address=("0.0.0.0", 5020))  # Server listens on port 5020
     
     # Start listening for client connections
     while True:
