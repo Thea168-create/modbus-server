@@ -43,6 +43,8 @@ def handle_write_request(request, client_socket):
             send_heartbeat_ack(client_socket)
     except InvalidMessageReceivedException as e:
         log.error(f"Invalid Modbus message received: {e}")
+        # Log the raw data received
+        log.debug(f"Raw data: {request}")
         # Respond with a Modbus error code (e.g., Exception Code 0x01 for illegal function)
         send_heartbeat_ack(client_socket)
 
@@ -52,13 +54,14 @@ def handle_request(request, client_socket):
     Handle incoming Modbus requests.
     """
     try:
-        print(f"Received Modbus request: {request}")
+        log.debug(f"Received Modbus request: {request}")
         if request.function_code == 16:
             handle_write_request(request, client_socket)
         else:
             send_heartbeat_ack(client_socket)
     except InvalidMessageReceivedException as e:
         log.error(f"Error processing Modbus request: {e}")
+        log.debug(f"Raw data: {request}")
         send_heartbeat_ack(client_socket)  # Send error response to client
 
 # Start the Modbus TCP server (Master)
