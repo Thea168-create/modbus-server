@@ -3,7 +3,7 @@ import time
 
 # Server configuration
 TCP_IP = "0.0.0.0"  # Listen on all available interfaces
-TCP_PORT = 1234
+TCP_PORT = 12345
 
 # Create a TCP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
