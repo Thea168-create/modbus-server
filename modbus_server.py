@@ -2,7 +2,7 @@ import socket
 
 # Server configuration
 UDP_IP = "0.0.0.0"  # Listen on all available interfaces
-UDP_PORT = 5005     # Port number to match the RTU configuration
+UDP_PORT = 1234     # Port number to match the RTU configuration
 
 # Create a UDP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
