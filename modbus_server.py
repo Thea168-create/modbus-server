@@ -1,23 +1,32 @@
 import socket
 
 # Server configuration
-UDP_IP = "0.0.0.0"
-UDP_PORT = 1234
+TCP_IP = "0.0.0.0"  # Listen on all available interfaces
+TCP_PORT = 1234
 
-sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-sock.bind((UDP_IP, UDP_PORT))
+# Create a TCP socket
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sock.bind((TCP_IP, TCP_PORT))
+sock.listen(5)
 
-print(f"Listening for UDP packets on port {UDP_PORT}...")
+print(f"Listening for TCP connections on port {TCP_PORT}...")
 
 while True:
-    data, addr = sock.recvfrom(1024)
-    message = data.decode()
+    conn, addr = sock.accept()
+    print(f"Connection established with {addr}")
     
-    if "LOGIN" in message:
-        print(f"Received login message from {addr}: {message}")
-        # Send Login ACK
-        ack_message = "ACK: LOGIN_OK"
-        sock.sendto(ack_message.encode(), addr)
-        print(f"Sent ACK to {addr}: {ack_message}")
-    else:
+    while True:
+        data = conn.recv(1024)
+        if not data:
+            break
+        message = data.decode()
         print(f"Received data from {addr}: {message}")
+        
+        # Optional: Send ACK message
+        if "LOGIN" in message:
+            ack_message = "LOGIN_OK"
+            conn.send(ack_message.encode())
+            print(f"Sent ACK to {addr}: {ack_message}")
+    
+    conn.close()
+    print(f"Connection closed with {addr}")
