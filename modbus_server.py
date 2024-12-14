@@ -1,28 +1,15 @@
 import socket
-import datetime
 
 # Server configuration
-SERVER_IP = "0.0.0.0"
-SERVER_PORT = 12345
-LOG_FILE = "rtu_data_log.txt"
+UDP_IP = "0.0.0.0"  # Listen on all available interfaces
+UDP_PORT = 5005     # Port number to match the RTU configuration
 
-# Create UDP socket
-udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-udp_socket.bind((SERVER_IP, SERVER_PORT))
+# Create a UDP socket
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+sock.bind((UDP_IP, UDP_PORT))
 
-print(f"Server listening on {SERVER_IP}:{SERVER_PORT}...")
+print(f"Listening for UDP packets on port {UDP_PORT}...")
 
-try:
-    with open(LOG_FILE, "a") as log_file:
-        while True:
-            data, addr = udp_socket.recvfrom(1024)
-            timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            log_entry = f"[{timestamp}] Data from {addr}: {data}\n"
-            print(log_entry.strip())
-            log_file.write(log_entry)
-            log_file.flush()
-except KeyboardInterrupt:
-    print("\nServer stopped by user.")
-finally:
-    udp_socket.close()
-    print("Socket closed.")
+while True:
+    data, addr = sock.recvfrom(1024)  # Buffer size of 1024 bytes
+    print(f"Received data: {data.decode()} from {addr}")
